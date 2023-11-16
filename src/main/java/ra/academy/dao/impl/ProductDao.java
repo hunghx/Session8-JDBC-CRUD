@@ -39,6 +39,26 @@ public class ProductDao implements IProductDao {
 
     @Override
     public Product findById(Integer id) {
+        Connection conn = ConnectDB.getConnection();
+        try {
+            PreparedStatement pre = conn.prepareStatement("Select * from product where id =?");
+            pre.setInt(1,id);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()){
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setDescription(rs.getString("description"));
+                p.setPrice(rs.getDouble("price"));
+                p.setStock(rs.getInt("stock"));
+                p.setImageUrl(rs.getString("image_url"));
+                return p;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            ConnectDB.closeConnection(conn);
+        }
         return null;
     }
 
@@ -60,7 +80,17 @@ public class ProductDao implements IProductDao {
               pre.executeUpdate();
 
           }else {
+// cap nhật
+              pre = conn.prepareCall("update product set name = ?," +
+                      "description=?,price=?,stock=?,image_url=? where id = ?");
+              pre.setString(1,product.getName());
+              pre.setString(2,product.getDescription());
+              pre.setDouble(3,product.getPrice());
+              pre.setInt(4,product.getStock());
+              pre.setString(5,product.getImageUrl());
+              pre.setInt(6,product.getId());
 
+              pre.executeUpdate();
           }
         }catch (SQLException e){
             e.printStackTrace();

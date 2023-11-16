@@ -32,6 +32,12 @@ public class ProductServlet extends HttpServlet {
                 case "ADD":
                     request.getRequestDispatcher("/WEB-INF/views/add-product.jsp").forward(request,response);
                     break;
+                case "EDIT":
+                    int idEdit = Integer.parseInt(request.getParameter("id"));
+                    // lấy ra thông tin cũ
+                    request.setAttribute("pro",productService.findById(idEdit));
+                    request.getRequestDispatcher("/WEB-INF/views/edit-product.jsp").forward(request,response);
+                    break;
             }
         }
     }
@@ -54,9 +60,20 @@ public class ProductServlet extends HttpServlet {
                     int stock = Integer.parseInt(request.getParameter("stock"));
                     Part part = request.getPart("image");
                     ProductRequest productRequest = new ProductRequest(name,des,price,stock,part);
-                    productService.createProduct(productRequest,request);
-                    getAllProduct(productService.findAll(),request,response);
+                    productService.createProduct(productRequest,getServletContext());
+                    response.sendRedirect(request.getContextPath()+"/ProductServlet?action=GETALL");
                     break;
+                case "UPDATE":
+                    int idEdit = Integer.parseInt(request.getParameter("id"));
+                    String imageUrl =request.getParameter("imageUrl");
+                    String nameUp = request.getParameter("name");
+                    String desUp  = request.getParameter("description");
+                    double priceUp = Double.parseDouble(request.getParameter("price"));
+                    int stockUp = Integer.parseInt(request.getParameter("stock"));
+                    Part partUp = request.getPart("image");
+                    ProductRequest productRequestUp = new ProductRequest(idEdit,imageUrl,nameUp,desUp,priceUp,stockUp,partUp);
+                    productService.updateProduct(productRequestUp,getServletContext());
+                    response.sendRedirect(request.getContextPath()+"/ProductServlet?action=GETALL");
             }
         }
     }

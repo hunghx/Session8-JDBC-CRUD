@@ -37,11 +37,11 @@
         <tr>
             <td>${loop.count}</td>
             <td>${p.name}</td>
-            <td><img width="100" height="100" style="object-fit: cover" src="<%=request.getContextPath()%>/uploads/${p.imageUrl}" alt="#"></td>
+            <td><img width="100" height="100" style="object-fit: cover" src="uploads/${p.imageUrl}" alt="#"></td>
             <td>${formater.format(p.price)}</td>
-            <td><a class="btn btn-info" href="">Details</a></td>
-            <td><a class="btn btn-warning" href="">Edit</a></td>
-            <td><a class="btn btn-danger" onclick="return confirm('bạn chắc chắn muốn xóa không?')" href="">Delete</a></td>
+            <td><a class="btn btn-info" href="<%=request.getContextPath()%>/ProductServlet?action=ADD">Details</a></td>
+            <td><a class="btn btn-warning" href="<%=request.getContextPath()%>/ProductServlet?action=EDIT&id=${p.id}">Edit</a></td>
+            <td><a class="btn btn-danger" onclick="return confirm('bạn chắc chắn muốn xóa không?')" href="<%=request.getContextPath()%>/ProductServlet?action=ADD">Delete</a></td>
         </tr>
     </c:forEach>
 

@@ -6,6 +6,7 @@ import ra.academy.dto.ProductRequest;
 import ra.academy.model.Product;
 import ra.academy.service.IProductService;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import java.io.File;
@@ -22,7 +23,7 @@ public class ProductService implements IProductService {
 
     @Override
     public Product findById(Integer id) {
-        return null;
+        return productDao.findById(id);
     }
 
     @Override
@@ -36,11 +37,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void createProduct(ProductRequest productRequest, HttpServletRequest request) {
-        String uploadPath ="C:\\Users\\hung1\\OneDrive\\Desktop\\JDBC-Connect-Mysql\\src\\main\\webapp\\uploads";
+    public void createProduct(ProductRequest productRequest, ServletContext servletContext) {
+        String uploadPath = servletContext.getRealPath("/uploads");
+        // lấy ra đường dẫn gốc trên server
         File file = new File(uploadPath);
         if (!file.exists()){
-            file.mkdirs();
+            file.mkdirs(); // khởi tạo thư mục uploads
         }
          // xử lí upload file
         Part part = productRequest.getImage();
@@ -51,6 +53,32 @@ public class ProductService implements IProductService {
             throw new RuntimeException(e);
         }
         Product p = new Product(productRequest.getStock(),productRequest.getName(),productRequest.getDescription(),filename,productRequest.getPrice());
+        productDao.save(p);
+    }
+
+    @Override
+    public void updateProduct(ProductRequest productRequest, ServletContext servletContext) {
+        Product p ;
+        if (productRequest.getImage().getSize()==0){
+            // ko upload file
+             p = new Product(productRequest.getId(), productRequest.getStock(),productRequest.getName(),productRequest.getDescription(),productRequest.getImageUrl(),productRequest.getPrice());
+        }else {
+            String uploadPath = servletContext.getRealPath("/uploads");
+            // lấy ra đường dẫn gốc trên server
+            File file = new File(uploadPath);
+            if (!file.exists()) {
+                file.mkdirs(); // khởi tạo thư mục uploads
+            }
+            // xử lí upload file
+            Part part = productRequest.getImage();
+            String filename = part.getSubmittedFileName();// lấy ra tên file upload
+            try {
+                part.write(uploadPath + File.separator + filename);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+             p = new Product(productRequest.getId(), productRequest.getStock(), productRequest.getName(), productRequest.getDescription(), filename, productRequest.getPrice());
+        }
         productDao.save(p);
     }
 }
